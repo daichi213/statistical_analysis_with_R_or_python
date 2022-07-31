@@ -1,0 +1,14 @@
+version: "3"
+services:
+  rstudio:
+    image: rocker/tidyverse:4.0.3
+    environment:
+      # Username：rstudio
+      PASSWORD: "password"
+    volumes:
+      - ./work:/home/rstudio/work
+    stdin_open: true
+    tty: true
+    ports:
+      - 8787:8787
+    # command: bash -c "rm -f tmp/pids/server.pid && rails db:create && rails db:migrate && rails server -b 0.0.0.0 -p 3000"
