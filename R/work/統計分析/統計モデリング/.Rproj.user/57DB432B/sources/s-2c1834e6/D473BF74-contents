@@ -1,0 +1,8 @@
+to_one_or_zero <- function(vector,factorName)
+{
+    vector_tmp <- as.character(vector)
+    vector_tmp <- replace(vector_tmp, vector_tmp != factorName,0)
+    vector_tmp <- replace(vector_tmp, vector_tmp == factorName,1)
+    vector_tmp <- as.numeric(vector_tmp)
+    return vector_tmp
+}

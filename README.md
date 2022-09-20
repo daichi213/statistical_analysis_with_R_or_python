@@ -28,7 +28,70 @@
 [1] 5.333333
 ```
 
+<<<<<<< HEAD
 - ショートカット : 「ctr」+「shift」+「m」
+=======
+#### ショートカット
+
+- Mac
+  - Ctr + Shift + M
+
+### ファイルの読み込み
+
+- to_one_or_zero.R
+```R
+to_one_or_zero <- function(vector,factorName)
+{
+    vector_tmp <- as.character(vector)
+    vector_tmp <- replace(vector_tmp, vector_tmp != factorName,0)
+    vector_tmp <- replace(vector_tmp, vector_tmp == factorName,1)
+    vector_tmp <- as.numeric(vector_tmp)
+    return (vector_tmp)
+}
+```
+
+Rスクリプトを記述して、作成したスクリプト内に存在する関数を使用する場合は、`source`コマンドを使用する。Rの対話モードでファイルの読み込みを行う場合は以下のようにして自作関数を使用できる。今回は、因子型のベクトルをロジスティック回帰の応答変数とするための前処理のためにスクリプトに前処理用の関数を定義した。変換対象のベクトルと水準名を入力して0と1で表現されたベクトルへ変換する処理を記載している。
+
+```R
+> source("./to_one_or_zero.R")
+> x <- to_one_or_zero(iris.all$Species,"versicolor")
+> x
+  [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ [26] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ [51] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ [76] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+[101] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[126] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+```
+
+### 行列の演算
+
+[参考ページ](https://stats.biopapyrus.jp/r/basic/matrix.html)
+
+### EDA
+
+```R
+> class(iris)
+[1] "data.frame"
+> head(iris,2)
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9         3.0          1.4         0.2  setosa
+> summary(iris)
+  Sepal.Length    Sepal.Width     Petal.Length    Petal.Width          Species  
+ Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100   setosa    :50  
+ 1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300   versicolor:50  
+ Median :5.800   Median :3.000   Median :4.350   Median :1.300   virginica :50  
+ Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199                  
+ 3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800                  
+ Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500  
+# データの分割
+> iris_setosa <- iris %>% filter(Species=="setosa")
+> iris_versicolor <- iris %>% filter(Species == "versicolor")
+> iris_virginica <- iris %>% filter(Species == "virginica")
+> hist(iris_setosa[["Sepal.Length"]],100)
+```
+>>>>>>> a8828fcd6f996ac41bae7eacf71b8fd107663220
 
 ### tidyverse ハンズオン
 
@@ -314,12 +377,117 @@ Coefficients:
 
 <img src=".\R\work\統計分析\単回帰\single_regression.png">
 
-##### 信頼区間・予測区間
+#### 一般化線形モデル(GLM)
+
+一般化線形モデルは、線形モデルで仮定されている以下事柄の制約を緩和した回帰モデルのこと。
+
+- 回帰は直線を仮定
+  - 回帰は直線のみでなく、回帰曲線をポアソン
+
+一般化線形モデルは回帰と説明変数の
+データを回帰して、回帰関数上は応答変数の母平均として
+
+##### リンク関数
+
+##### ポアソン回帰
+
+- 確率密度関数
+$P(X=k)=\dfrac{\lambda^ k e^{-\lambda}}{k!}$
+
+- ポアソン回帰
+```math
+x_1〜x_iが同時に発生する確率\\
+L(\beta_1,\beta_2)=\prod_i\dfrac{\lambda^ {y_i}_i e^{-\lambda_i}}{{y_i}!} \\
+
+logL(\beta_1,\beta_2)=\sum_{i}log\dfrac{\lambda^ {y_i}_i e^{-\lambda_i}}{{y_i}!} \\
+log\lambda_i=\beta_1+\beta_2x_i \\
+\lambda_i=e^{\beta_1+\beta_2x_i}\\
+```
+- $x_1〜x_i$は例えば以下のようなもので説明変数の値の範囲で離散値
+  - $x_1$:Petal.Length1.5~1.6cm
+  - $x_2$:Petal.Length1.6~1.7cm
+
+##### データの可視化
+
+##### モデル化
 
 ```R
+> fit <- glm(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, iris.all,family = gaussian)
+> print(fit)
 
+Call:  glm(formula = Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, 
+    family = gaussian, data = iris.all)
+
+Coefficients:
+ (Intercept)   Sepal.Width  Petal.Length   Petal.Width  
+      1.8560        0.6508        0.7091       -0.5565  
+
+Degrees of Freedom: 149 Total (i.e. Null);  146 Residual
+Null Deviance:	    102.2 
+Residual Deviance: 14.45 	AIC: 84.64
+# 最大対数尤度
+> logLik(fit)
+'log Lik.' -37.32136 (df=5)
 ```
 
+##### 実践 : 二項分布
+
+```R
+> iris.all$setosa <- to_one_or_zero(iris.all$Species,"setosa")
+> iris.all$setosa
+  [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ [26] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ [51] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ [76] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[101] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[126] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+> fit.setosa <- glm(cbind(setosa,1-setosa) ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = iris.all,family = binomial)
+> step.fit <- stepAIC(fit.setosa)
+Start:  AIC=10
+cbind(setosa, 1 - setosa) ~ Sepal.Length + Sepal.Width + Petal.Length + 
+    Petal.Width
+
+               Df   Deviance AIC
+- Sepal.Length  1 3.4141e-09   8
+- Petal.Width   1 3.5233e-09   8
+- Sepal.Width   1 3.8998e-09   8
+- Petal.Length  1 4.1441e-09   8
+<none>            3.2940e-09  10
+
+Step:  AIC=8
+cbind(setosa, 1 - setosa) ~ Sepal.Width + Petal.Length + Petal.Width
+
+               Df   Deviance AIC
+- Petal.Width   1 4.2689e-09   6
+- Petal.Length  1 4.6900e-09   6
+- Sepal.Width   1 5.1700e-09   6
+<none>            3.4141e-09   8
+
+Step:  AIC=6
+cbind(setosa, 1 - setosa) ~ Sepal.Width + Petal.Length
+
+               Df Deviance    AIC
+- Sepal.Width   1     0.00   4.00
+<none>                0.00   6.00
+- Petal.Length  1   123.83 127.83
+
+Step:  AIC=4
+cbind(setosa, 1 - setosa) ~ Petal.Length
+
+               Df Deviance    AIC
+<none>                0.00   4.00
+- Petal.Length  1   190.95 192.95
+There were 22 warnings (use warnings() to see them)
+# 
+> fit.setosa.petal <- glm(cbind(setosa,1-setosa) ~ Petal.Length,data = iris.all,family = binomial)
+> pred <- predict(fit.setosa.petal,newdata = data.frame(Petal.Length=x),type = "response")
+# 図示
+# xlimはベクトルを指定する点に注意する
+> plot(iris.all$Petal.Length,iris.all$setosa,xlim = c(1.5,3))
+> lines(x,pred)
+```
+
+<<<<<<< HEAD
 ### データ解析のための統計モデリング
 
 #### まとめ
@@ -426,3 +594,16 @@ group 38  1.1485 0.3098
       61
 
 ```
+=======
+<img src="./R/work/統計分析/統計モデリング/setosa_vs_petal_length.png">
+
+- `predict関数`の注意点
+   - 引数`newdata`はdata.frameを指定かつ[列名に説明変数名が含まれていなければならない点に注意する](https://blog.statsbeginner.net/entry/2014/10/18/130504)
+
+#### 一般化線形混合モデル(GLMM)
+
+
+
+### 時系列関連
+
+>>>>>>> a8828fcd6f996ac41bae7eacf71b8fd107663220
