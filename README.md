@@ -28,6 +28,8 @@
 [1] 5.333333
 ```
 
+- ショートカット : 「ctr」+「shift」+「m」
+
 ### tidyverse ハンズオン
 
 [shun さんの tidyverse 講座](https://datasciencemore.com/category/ds-lecture/r-preprocess-lecture/)
@@ -315,5 +317,112 @@ Coefficients:
 ##### 信頼区間・予測区間
 
 ```R
+
+```
+
+### データ解析のための統計モデリング
+
+#### まとめ
+
+##### 一般化線形モデル(GLM)
+
+- 一般化線形モデル
+
+  - 通常の回帰モデルに対して、確率分布の概念を加えたモデルのこと。イメージ的には、$\mu=x_1 +x_2$などの回帰式から母平均をモデリングして、この母平均の確率分布をモデリングする形になる。この式をリンク関数と呼ぶ。
+  - 離散分布
+    - ある植物が有する種子数を被説明変数として、植物の体長などを説明変数とする場合、分布は離散分布になるからモデリングには離散分布を選択する。
+    - ポアソン分布
+      - 被説明変数が有界でない場合に使用する分布。具体的には、上例のサンプルを無限に行う場合が当てはまる。サンプル数が有限の場合も適用はできるが、二項分布のようにサンプル数をモデルに含められない。
+    - 二項分布
+      - ポアソン分布と対比すると、サンプル数が有限の場合に適用する離散分布となる。
+  - 連続分布
+    - ガウス分布
+    - ガンマ分布
+
+- 無次元量の説明変数
+  - 説明変数を正規化・無次元化することは基本的に推奨されない
+  - 人口密度や成長率のような変数を扱いたい場合は、オフセット項わざを使用する
+
+#### 6.GLM の応用範囲を広げる（ポアソン分布、二項分布、ロジスティック回帰）
+
+##### データ準備
+
+テキストに記載されている二項分布を一般化線形モデルとして適用するために、データの前加工を以下行った。
+
+```R
+# DATAFRAMEに新たな列を追加する（行追加の場合はrbind）
+# setosa_labelには論理値ベクトルを割り当てている
+> iris_data <- cbind(iris_data, setosa_label=(iris_data$Species=="setosa"))
+# setosa_labelの論理値ベクトルの累積和ベクトルを生成している
+> cumsum(iris_data$setosa_label)
+  [1]  1  2  3  4  5  6  7  8  9 10 11 12
+ [13] 13 14 15 16 17 18 19 20 21 22 23 24
+ [25] 25 26 27 28 29 30 31 32 33 34 35 36
+ [37] 37 38 39 40 41 42 43 44 45 46 47 48
+ [49] 49 50 50 50 50 50 50 50 50 50 50 50
+ [61] 50 50 50 50 50 50 50 50 50 50 50 50
+ [73] 50 50 50 50 50 50 50 50 50 50 50 50
+ [85] 50 50 50 50 50 50 50 50 50 50 50 50
+ [97] 50 50 50 50 50 50 50 50 50 50 50 50
+[109] 50 50 50 50 50 50 50 50 50 50 50 50
+[121] 50 50 50 50 50 50 50 50 50 50 50 50
+[133] 50 50 50 50 50 50 50 50 50 50 50 50
+[145] 50 50 50 50 50 50
+# iris_dataからランダムサンプリング
+> sample_iris_data <- sample_n(iris_data,100)
+# サンプルデータフレームに正解ラベルであるsetosa_labelの累積ベクトルを追加（これでやっと二項分布のラベルに使用できる）
+> sample_iris_data <- cbind(sample_iris_data, setosa_label_count=(cumsum(sample_iris_data$setosa_label)))
+```
+
+##### 自動モデル選択
+
+```R
+> fit_setosa <- glm(cbind(setosa_label_count, N - setosa_label_count) ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = sample_iris_data, family = binomial)
+# 以下を使用すると自動でAICが低いモデルを探索してくれる
+> library(MASS)
+> stepAIC(fit_setosa)
+
+```
+
+##### 連続分布
+
+```R
+# ガウス分布をプロット
+> y <- seq(-5, 5, 0.1)
+> plot(y, dnorm(y, mean = 0, sd = 1), type = "l")
+
+# 1.2~1.8の標準正規分布の確率計算
+> pnorm(1.8, 0, 1) - pnorm(1.2, 0, 1)
+[1] 0.07913935
+# ガウス分布の1.2~1.8の範囲を矩形として近似計算
+> dnorm((1.2+1.8)/2, 0, 1) * (1.8 - 1.2)
+[1] 0.07771056
+```
+
+##### 等分散性検定
+
+以下、R のパッケージである car を使用した[ルビーン検定](https://infolit.uec.tmu.ac.jp/lit/contents/2aexcel/levene_s_test/)についてまとめる。
+
+```R
+> install.packages("car")
+....
+> library(car)
+Loading required package: carData
+
+Attaching package: ‘car’
+
+The following object is masked from ‘package:dplyr’:
+
+    recode
+
+The following object is masked from ‘package:purrr’:
+
+    some
+# Sepal.lengthとPetal.LengthはP値が0.05より大きいため、等分散性を有すると判断する
+> leveneTest(sample_iris_data$Sepal.Length, sample_iris_data$Petal.Length)
+Levene's Test for Homogeneity of Variance (center = median)
+      Df F value Pr(>F)
+group 38  1.1485 0.3098
+      61
 
 ```
