@@ -28,17 +28,13 @@
 [1] 5.333333
 ```
 
-<<<<<<< HEAD
-- ショートカット : 「ctr」+「shift」+「m」
-=======
-#### ショートカット
-
 - Mac
   - Ctr + Shift + M
 
 ### ファイルの読み込み
 
 - to_one_or_zero.R
+
 ```R
 to_one_or_zero <- function(vector,factorName)
 {
@@ -50,7 +46,7 @@ to_one_or_zero <- function(vector,factorName)
 }
 ```
 
-Rスクリプトを記述して、作成したスクリプト内に存在する関数を使用する場合は、`source`コマンドを使用する。Rの対話モードでファイルの読み込みを行う場合は以下のようにして自作関数を使用できる。今回は、因子型のベクトルをロジスティック回帰の応答変数とするための前処理のためにスクリプトに前処理用の関数を定義した。変換対象のベクトルと水準名を入力して0と1で表現されたベクトルへ変換する処理を記載している。
+R スクリプトを記述して、作成したスクリプト内に存在する関数を使用する場合は、`source`コマンドを使用する。R の対話モードでファイルの読み込みを行う場合は以下のようにして自作関数を使用できる。今回は、因子型のベクトルをロジスティック回帰の応答変数とするための前処理のためにスクリプトに前処理用の関数を定義した。変換対象のベクトルと水準名を入力して 0 と 1 で表現されたベクトルへ変換する処理を記載している。
 
 ```R
 > source("./to_one_or_zero.R")
@@ -78,20 +74,19 @@ Rスクリプトを記述して、作成したスクリプト内に存在する�
 1          5.1         3.5          1.4         0.2  setosa
 2          4.9         3.0          1.4         0.2  setosa
 > summary(iris)
-  Sepal.Length    Sepal.Width     Petal.Length    Petal.Width          Species  
- Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100   setosa    :50  
- 1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300   versicolor:50  
- Median :5.800   Median :3.000   Median :4.350   Median :1.300   virginica :50  
- Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199                  
- 3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800                  
- Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500  
+  Sepal.Length    Sepal.Width     Petal.Length    Petal.Width          Species
+ Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100   setosa    :50
+ 1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300   versicolor:50
+ Median :5.800   Median :3.000   Median :4.350   Median :1.300   virginica :50
+ Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199
+ 3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800
+ Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500
 # データの分割
 > iris_setosa <- iris %>% filter(Species=="setosa")
 > iris_versicolor <- iris %>% filter(Species == "versicolor")
 > iris_virginica <- iris %>% filter(Species == "virginica")
 > hist(iris_setosa[["Sepal.Length"]],100)
 ```
->>>>>>> a8828fcd6f996ac41bae7eacf71b8fd107663220
 
 ### tidyverse ハンズオン
 
@@ -392,9 +387,10 @@ Coefficients:
 ##### ポアソン回帰
 
 - 確率密度関数
-$P(X=k)=\dfrac{\lambda^ k e^{-\lambda}}{k!}$
+  $P(X=k)=\dfrac{\lambda^ k e^{-\lambda}}{k!}$
 
 - ポアソン回帰
+
 ```math
 x_1〜x_iが同時に発生する確率\\
 L(\beta_1,\beta_2)=\prod_i\dfrac{\lambda^ {y_i}_i e^{-\lambda_i}}{{y_i}!} \\
@@ -403,6 +399,7 @@ logL(\beta_1,\beta_2)=\sum_{i}log\dfrac{\lambda^ {y_i}_i e^{-\lambda_i}}{{y_i}!}
 log\lambda_i=\beta_1+\beta_2x_i \\
 \lambda_i=e^{\beta_1+\beta_2x_i}\\
 ```
+
 - $x_1〜x_i$は例えば以下のようなもので説明変数の値の範囲で離散値
   - $x_1$:Petal.Length1.5~1.6cm
   - $x_2$:Petal.Length1.6~1.7cm
@@ -415,15 +412,15 @@ log\lambda_i=\beta_1+\beta_2x_i \\
 > fit <- glm(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, iris.all,family = gaussian)
 > print(fit)
 
-Call:  glm(formula = Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, 
+Call:  glm(formula = Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width,
     family = gaussian, data = iris.all)
 
 Coefficients:
- (Intercept)   Sepal.Width  Petal.Length   Petal.Width  
-      1.8560        0.6508        0.7091       -0.5565  
+ (Intercept)   Sepal.Width  Petal.Length   Petal.Width
+      1.8560        0.6508        0.7091       -0.5565
 
 Degrees of Freedom: 149 Total (i.e. Null);  146 Residual
-Null Deviance:	    102.2 
+Null Deviance:	    102.2
 Residual Deviance: 14.45 	AIC: 84.64
 # 最大対数尤度
 > logLik(fit)
@@ -444,7 +441,7 @@ Residual Deviance: 14.45 	AIC: 84.64
 > fit.setosa <- glm(cbind(setosa,1-setosa) ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = iris.all,family = binomial)
 > step.fit <- stepAIC(fit.setosa)
 Start:  AIC=10
-cbind(setosa, 1 - setosa) ~ Sepal.Length + Sepal.Width + Petal.Length + 
+cbind(setosa, 1 - setosa) ~ Sepal.Length + Sepal.Width + Petal.Length +
     Petal.Width
 
                Df   Deviance AIC
@@ -478,7 +475,7 @@ cbind(setosa, 1 - setosa) ~ Petal.Length
 <none>                0.00   4.00
 - Petal.Length  1   190.95 192.95
 There were 22 warnings (use warnings() to see them)
-# 
+#
 > fit.setosa.petal <- glm(cbind(setosa,1-setosa) ~ Petal.Length,data = iris.all,family = binomial)
 > pred <- predict(fit.setosa.petal,newdata = data.frame(Petal.Length=x),type = "response")
 # 図示
@@ -488,6 +485,7 @@ There were 22 warnings (use warnings() to see them)
 ```
 
 <<<<<<< HEAD
+
 ### データ解析のための統計モデリング
 
 #### まとめ
@@ -594,16 +592,15 @@ group 38  1.1485 0.3098
       61
 
 ```
+
 =======
 <img src="./R/work/統計分析/統計モデリング/setosa_vs_petal_length.png">
 
 - `predict関数`の注意点
-   - 引数`newdata`はdata.frameを指定かつ[列名に説明変数名が含まれていなければならない点に注意する](https://blog.statsbeginner.net/entry/2014/10/18/130504)
+  - 引数`newdata`は data.frame を指定かつ[列名に説明変数名が含まれていなければならない点に注意する](https://blog.statsbeginner.net/entry/2014/10/18/130504)
 
 #### 一般化線形混合モデル(GLMM)
 
-
-
 ### 時系列関連
 
->>>>>>> a8828fcd6f996ac41bae7eacf71b8fd107663220
+> > > > > > > a8828fcd6f996ac41bae7eacf71b8fd107663220
