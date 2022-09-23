@@ -384,25 +384,73 @@ Coefficients:
 
 ##### リンク関数
 
+TODO 以下の用語を含めて説明
+- 線形予測子
+- 線形予測子のパラメーター$\beta_1,\beta_2$
+
 ##### ポアソン回帰
 
-- 確率密度関数
+- ポアソン分布の確率密度関数
   $P(X=k)=\dfrac{\lambda^ k e^{-\lambda}}{k!}$
-
-- ポアソン回帰
-
+  上式は「所与の時間中に平均で λ 回発生する事象がちょうど k 回（k は非負の整数）発生する確率」を表す。
+  - ポアソン分布の確率密度関数について整理する
+    - 事象$i$が$k$回発生する確率は$P(X=k)$
 ```math
-x_1〜x_iが同時に発生する確率\\
-L(\beta_1,\beta_2)=\prod_i\dfrac{\lambda^ {y_i}_i e^{-\lambda_i}}{{y_i}!} \\
-
-logL(\beta_1,\beta_2)=\sum_{i}log\dfrac{\lambda^ {y_i}_i e^{-\lambda_i}}{{y_i}!} \\
-log\lambda_i=\beta_1+\beta_2x_i \\
-\lambda_i=e^{\beta_1+\beta_2x_i}\\
+P_i(X=k)=\dfrac{\lambda^ {k}_i e^{-\lambda_i}}{{k}!} \\
 ```
 
-- $x_1〜x_i$は例えば以下のようなもので説明変数の値の範囲で離散値
-  - $x_1$:Petal.Length1.5~1.6cm
-  - $x_2$:Petal.Length1.6~1.7cm
+- ポアソン回帰(恒等リンク関数)
+  - 母平均$\lambda_i$回発生する事象が$y_i$発生する確率は$L$となる
+  - リンク関数が恒等関数の場合はポアソン回帰の回帰式は以下で記述できる
+
+```math
+\lambda_i=\beta_1+\beta_2x_i \\
+以下の式と考えてグラフを描く\\
+y=\lambda_i=\beta_1+\beta_2x_i \\
+上グラフ上は母平均の値になるので、そこから以下の幅を持った確率分布がグラフ上に描かれるイメージ\\
+xが独立変数(グラフの横軸)、\betaがパラメータで最尤推定法などを使用して推定する必要がある\\
+P_i(X,\beta_1,\beta_2)=\dfrac{\lambda^ {y_i}_i e^{-\lambda_i}}{{y_i}!} \\
+```
+- ポアソン回帰(対数リンク関数)
+
+```math
+log\lambda_i=\beta_1+\beta_2x_i \\
+\lambda_i=e^{\beta_1+\beta_2x_i}\\
+以下の式と考えてグラフを描く\\
+y=\lambda_i=e^{\beta_1+\beta_2x_i}\\
+恒等リンク関数の時と同様、上グラフ上は母平均の値になるので、そこから以下の幅を持った確率分布がグラフ上に描かれるイメージ\\
+P(X;\beta_1,\beta_2)=\dfrac{\lambda^ {y_i}_i e^{-\lambda_i}}{{y_i}!} \\
+対数尤度関数は以下になり、これからパラメーター\betaの推定を行う\\
+logL(X;\beta_1,\beta_2)=\sum_{i}log\dfrac{\lambda^ {k}_i e^{-\lambda_i}}{{k}!} \\
+```
+- ポアソン回帰の最尤推定
+[最尤推定法の参考ページ](https://www.ouj.ac.jp/mijika/tokei/xml/k3_03004.xml)
+  - $s_1〜s_i$はサンプルで、$\beta_1,\beta_2$は未知のパラメータ(推定するパラメータ)
+  - $y_1〜y_i$はカウントまたは回数で$s_1〜s_i$の出現回数に対応している
+```math
+L(s_1,s_2,...,s_i;\beta_1,\beta_2)=P_1(X=x_1)*P_2(X=x_2)*...*P_i(X=x_i)\\=\dfrac{\lambda^ {y_1}_1 e^{-\lambda_1}}{{y_1}!}*\dfrac{\lambda^ {y_2}_2 e^{-\lambda_2}}{{y_2}!}*...*\dfrac{\lambda^ {y_3}_3 e^{-\lambda_3}}{{y_3}} \\
+\lambda_1=\beta_1+\beta_2x_1 \\
+\lambda_2=\beta_1+\beta_2x_2 \\
+...\\
+\lambda_i=\beta_1+\beta_2x_i \\
+Lが凸関数であれば、各パラメータの一階偏微分がLが最大値となるための必要十分条件になる。\\
+\frac{\partial L}{\partial \beta_1}=0\\
+\frac{\partial L}{\partial \beta_2}=0\\
+後は、この式を\betaについて解ければパラメーターを推定できる
+```
+ただし、この解き方だと推定パラメーターが積になっており、解析的に解くのは不可能なので尤度関数の対数をとってから解いていく
+```math
+L(s_1,s_2,...,s_i;\beta_1,\beta_2)=P_1(X=x_1)*P_2(X=x_2)*...*P_i(X=x_i)\\=\dfrac{\lambda^ {y_1}_1 e^{-\lambda_1}}{{y_1}!}*\dfrac{\lambda^ {y_2}_2 e^{-\lambda_2}}{{y_2}!}*...*\dfrac{\lambda^ {y_3}_3 e^{-\lambda_3}}{{y_3}} \\
+logL(s_1,s_2,...,s_i;\beta_1,\beta_2)=logP_1(X=x_1)+logP_2(X=x_2)+...+logP_i(X=x_i)\\=log\dfrac{\lambda^ {y_1}_1 e^{-\lambda_1}}{{y_1}!}+log\dfrac{\lambda^ {y_2}_2 e^{-\lambda_2}}{{y_2}!}+...+log\dfrac{\lambda^ {y_3}_3 e^{-\lambda_3}}{{y_3}} \\
+\lambda_1=\beta_1+\beta_2x_1 \\
+\lambda_2=\beta_1+\beta_2x_2 \\
+...\\
+\lambda_i=\beta_1+\beta_2x_i \\
+対数関数は単調増加関数なので、以下条件で関数の最大値を推定可能\\
+\frac{\partial L}{\partial \beta_1}=0\\
+\frac{\partial L}{\partial \beta_2}=0\\
+後は、この式を\betaについて解く
+```
 
 ##### データの可視化
 
