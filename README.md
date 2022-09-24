@@ -31,6 +31,80 @@
 - Mac
   - Ctr + Shift + M
 
+### Debug
+
+#### シェル上でのデバッグ
+
+[参考ページ](https://bioinfo-dojo.net/2017/04/21/r-debug/)
+
+```R
+require(data.table)
+
+air = fread('data/AirPassengers.csv')
+names(air) = c("Date", "Num")
+air[, Date:= as.Date(paste0(Date, "-01"), format = "%Y-%m-%d")]
+
+## loess smoothing
+loess.smooth(air$Date, air$Num)
+browser()
+```
+
+デバッグ対象のファイルのブレークポイントを挿入したい箇所に`browser()`を設置して、以下手順にしたがってスクリプトを起動することでデバッグモードを起動できる。
+
+```R
+root@5834c417a2c7:/home/rstudio/work/時系列分
+析/BookRepo/Ch02$ R
+> source('smoothing.R')
+Loading required package: data.table
+data.table 1.13.6 using 6 threads (see ?getDTthreads).  Latest news: r-datatable.com
+Called from: eval(ei, envir)
+Browse[1]> ls()
+[1] "air"
+Browse[1]> class(air)
+[1] "data.table" "data.frame"
+Browse[1]> head(air,3)
+         Date Num
+1: 1949-01-01 112
+2: 1949-02-01 118
+3: 1949-03-01 132
+Browse[1]> tracemem(air)
+[1] "<0x56031aef5a58>"
+Browse[1]> Q
+# q() or Ctr+「D」で対話モード終了
+>q()
+```
+
+#### Rstudio
+
+[参考ページ](https://financial-it-engineer.hatenablog.com/entry/20160207/1454818706)
+
+### よく使用する関数一覧
+
+#### 型名の取得
+
+変数の型名は以下のようにして取得できる
+
+```R
+> class(unrate_raw_data)
+[1] "data.table" "data.frame"
+> class(unrate_raw_data$DATE)
+[1] "IDate" "Date"
+```
+
+#### tracemem
+
+[変数のアドレスを出力する](https://www.web-dev-qa-db-ja.com/ja/r/r%E3%81%A7%E3%83%87%E3%83%BC%E3%82%BF%E3%83%95%E3%83%AC%E3%83%BC%E3%83%A0%E3%81%AE%E3%82%B3%E3%83%94%E3%83%BC%E3%82%92%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95/822705630/)
+
+```R
+> unrate_raw_data <- fread("./work/時系列分析/BookRepo/Ch02/data/UNRATE.csv")
+> tracemem(unrate_raw_data)
+[1] "<0x562a7bd46f90>"
+> tracemem(unrate_raw_data) == tracemem(unemp)
+[1] FALSE
+```
+
+論理比較演算子を使用することで、変数が本質的に等しいかどうかを確認できる。
+
 ### ファイルの読み込み
 
 - to_one_or_zero.R
@@ -385,6 +459,7 @@ Coefficients:
 ##### リンク関数
 
 TODO 以下の用語を含めて説明
+
 - 線形予測子
 - 線形予測子のパラメーター$\beta_1,\beta_2$
 
@@ -395,6 +470,7 @@ TODO 以下の用語を含めて説明
   上式は「所与の時間中に平均で λ 回発生する事象がちょうど k 回（k は非負の整数）発生する確率」を表す。
   - ポアソン分布の確率密度関数について整理する
     - 事象$i$が$k$回発生する確率は$P(X=k)$
+
 ```math
 P_i(X=k)=\dfrac{\lambda^ {k}_i e^{-\lambda_i}}{{k}!} \\
 ```
@@ -411,6 +487,7 @@ y=\lambda_i=\beta_1+\beta_2x_i \\
 xが独立変数(グラフの横軸)、\betaがパラメータで最尤推定法などを使用して推定する必要がある\\
 P_i(X,\beta_1,\beta_2)=\dfrac{\lambda^ {y_i}_i e^{-\lambda_i}}{{y_i}!} \\
 ```
+
 - ポアソン回帰(対数リンク関数)
 
 ```math
@@ -423,10 +500,12 @@ P(X;\beta_1,\beta_2)=\dfrac{\lambda^ {y_i}_i e^{-\lambda_i}}{{y_i}!} \\
 対数尤度関数は以下になり、これからパラメーター\betaの推定を行う\\
 logL(X;\beta_1,\beta_2)=\sum_{i}log\dfrac{\lambda^ {k}_i e^{-\lambda_i}}{{k}!} \\
 ```
+
 - ポアソン回帰の最尤推定
-[最尤推定法の参考ページ](https://www.ouj.ac.jp/mijika/tokei/xml/k3_03004.xml)
+  [最尤推定法の参考ページ](https://www.ouj.ac.jp/mijika/tokei/xml/k3_03004.xml)
   - $s_1〜s_i$はサンプルで、$\beta_1,\beta_2$は未知のパラメータ(推定するパラメータ)
   - $y_1〜y_i$はカウントまたは回数で$s_1〜s_i$の出現回数に対応している
+
 ```math
 L(s_1,s_2,...,s_i;\beta_1,\beta_2)=P_1(X=x_1)*P_2(X=x_2)*...*P_i(X=x_i)\\=\dfrac{\lambda^ {y_1}_1 e^{-\lambda_1}}{{y_1}!}*\dfrac{\lambda^ {y_2}_2 e^{-\lambda_2}}{{y_2}!}*...*\dfrac{\lambda^ {y_3}_3 e^{-\lambda_3}}{{y_3}} \\
 \lambda_1=\beta_1+\beta_2x_1 \\
@@ -438,7 +517,9 @@ Lが凸関数であれば、各パラメータの一階偏微分がLが最大値
 \frac{\partial L}{\partial \beta_2}=0\\
 後は、この式を\betaについて解ければパラメーターを推定できる
 ```
+
 ただし、この解き方だと推定パラメーターが積になっており、解析的に解くのは不可能なので尤度関数の対数をとってから解いていく
+
 ```math
 L(s_1,s_2,...,s_i;\beta_1,\beta_2)=P_1(X=x_1)*P_2(X=x_2)*...*P_i(X=x_i)\\=\dfrac{\lambda^ {y_1}_1 e^{-\lambda_1}}{{y_1}!}*\dfrac{\lambda^ {y_2}_2 e^{-\lambda_2}}{{y_2}!}*...*\dfrac{\lambda^ {y_3}_3 e^{-\lambda_3}}{{y_3}} \\
 logL(s_1,s_2,...,s_i;\beta_1,\beta_2)=logP_1(X=x_1)+logP_2(X=x_2)+...+logP_i(X=x_i)\\=log\dfrac{\lambda^ {y_1}_1 e^{-\lambda_1}}{{y_1}!}+log\dfrac{\lambda^ {y_2}_2 e^{-\lambda_2}}{{y_2}!}+...+log\dfrac{\lambda^ {y_3}_3 e^{-\lambda_3}}{{y_3}} \\
@@ -649,6 +730,12 @@ group 38  1.1485 0.3098
 
 #### 一般化線形混合モデル(GLMM)
 
-### 時系列関連
+TODO GLMM について学習した内容をまとめる
 
-> > > > > > > a8828fcd6f996ac41bae7eacf71b8fd107663220
+### data.table
+
+[data.table]()
+
+### 時系列解析
+
+[実践 時系列解析](https://www.oreilly.co.jp/books/9784873119601/)の学習内容をこちらにまとめた。
